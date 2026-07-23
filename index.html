@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Phòng riêng realtime để truyền văn bản và ảnh nhẹ giữa các thiết bị." />
+  <title>QuickRoom - Phòng riêng realtime</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-bg" aria-hidden="true"></div>
+
+  <main class="page-shell">
+    <section id="config-error" class="config-error hidden" role="alert">
+      <strong>Chưa cấu hình Supabase.</strong>
+      <span>Mở file <code>config.js</code>, điền URL và anon key của dự án.</span>
+    </section>
+
+    <section id="auth-view" class="auth-card" aria-labelledby="auth-title">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img">
+          <path d="M5.5 7.5h13A2.5 2.5 0 0 1 21 10v7.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5V10a2.5 2.5 0 0 1 2.5-2.5Z" />
+          <path d="m7 7.5 1.2-2.2A2.5 2.5 0 0 1 10.4 4h3.2a2.5 2.5 0 0 1 2.2 1.3L17 7.5" />
+          <circle cx="12" cy="13.5" r="3.2" />
+        </svg>
+      </div>
+
+      <p class="eyebrow">PHÒNG RIÊNG CÁ NHÂN</p>
+      <h1 id="auth-title">Gửi text và ảnh giữa các thiết bị</h1>
+      <p class="auth-description">
+        Đăng nhập cùng một tài khoản trên điện thoại và máy tính. Nội dung được đồng bộ realtime và chỉ tài khoản đó được đọc.
+      </p>
+
+      <form id="auth-form" class="auth-form" novalidate>
+        <label>
+          <span>Email</span>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="ban@example.com" required />
+        </label>
+
+        <label>
+          <span>Mật khẩu</span>
+          <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" placeholder="Tối thiểu 6 ký tự" required />
+        </label>
+
+        <div class="auth-actions">
+          <button id="login-btn" class="button button-primary" type="submit">
+            <span>Đăng nhập</span>
+          </button>
+          <button id="signup-btn" class="button button-secondary" type="button">
+            Tạo tài khoản
+          </button>
+        </div>
+      </form>
+
+      <p id="auth-message" class="form-message" aria-live="polite"></p>
+      <p class="privacy-note">Không đặt service_role key trong website. Chỉ dùng anon public key kèm RLS.</p>
+    </section>
+
+    <section id="chat-view" class="chat-shell hidden" aria-label="Phòng chat riêng">
+      <header class="chat-header">
+        <div class="chat-title-wrap">
+          <div class="room-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 5.8A2.8 2.8 0 0 1 6.8 3h10.4A2.8 2.8 0 0 1 20 5.8v7.4a2.8 2.8 0 0 1-2.8 2.8H10l-4.8 4v-4A2.8 2.8 0 0 1 4 13.2V5.8Z" />
+            </svg>
+          </div>
+          <div>
+            <h2>Phòng riêng</h2>
+            <div class="connection-line">
+              <span id="status-dot" class="status-dot"></span>
+              <span id="connection-status">Đang kết nối...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="settings-btn" class="icon-button" type="button" title="Tên thiết bị" aria-label="Đổi tên thiết bị">
+            <svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+          </button>
+          <button id="logout-btn" class="button button-ghost" type="button">Đăng xuất</button>
+        </div>
+      </header>
+
+      <div id="user-strip" class="user-strip"></div>
+
+      <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions">
+        <div id="empty-state" class="empty-state">
+          <div class="empty-icon" aria-hidden="true">↗</div>
+          <h3>Phòng đã sẵn sàng</h3>
+          <p>Gửi một đoạn text hoặc chọn ảnh. Bạn cũng có thể dán ảnh trực tiếp bằng Ctrl + V.</p>
+        </div>
+      </div>
+
+      <form id="composer" class="composer">
+        <div id="image-preview-wrap" class="image-preview-wrap hidden">
+          <img id="image-preview" alt="Ảnh sắp gửi" />
+          <div class="preview-meta">
+            <strong id="preview-name"></strong>
+            <span id="preview-size"></span>
+          </div>
+          <button id="remove-image-btn" class="remove-preview" type="button" aria-label="Bỏ ảnh">×</button>
+        </div>
+
+        <div class="composer-row">
+          <label class="attach-button" for="image-input" title="Chọn ảnh">
+            <svg viewBox="0 0 24 24"><path d="M21.4 11.6 12 21a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5" /></svg>
+          </label>
+          <input id="image-input" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+
+          <textarea id="message-input" rows="1" maxlength="3000" placeholder="Nhập nội dung..." aria-label="Nội dung tin nhắn"></textarea>
+
+          <button id="send-btn" class="send-button" type="submit" aria-label="Gửi">
+            <svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+          </button>
+        </div>
+        <div class="composer-help">Enter để gửi · Shift + Enter xuống dòng · Ảnh tự nén trước khi tải lên</div>
+      </form>
+    </section>
+  </main>
+
+  <dialog id="settings-dialog" class="settings-dialog">
+    <form method="dialog" class="settings-card">
+      <div class="settings-heading">
+        <div>
+          <p class="eyebrow">HIỂN THỊ</p>
+          <h3>Tên thiết bị</h3>
+        </div>
+        <button class="dialog-close" value="cancel" aria-label="Đóng">×</button>
+      </div>
+      <p>Tên này giúp phân biệt tin nhắn gửi từ điện thoại hoặc máy tính.</p>
+      <label>
+        <span>Tên hiển thị</span>
+        <input id="device-name-input" maxlength="40" placeholder="Ví dụ: PC ở nhà" />
+      </label>
+      <button id="save-device-name" class="button button-primary" value="default">Lưu tên</button>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
